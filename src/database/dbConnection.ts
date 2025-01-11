@@ -19,10 +19,13 @@ const dbConnect = async () => {
   } catch (error) {
     console.error('Error during database connection:', error)
 
+    // Check if error is an instance of Error
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
     return NextResponse.json({
       message: 'Error connecting to the database',
       success: false,
-      error: error.message,
+      error: errorMessage,
     })
   }
 }
