@@ -2,8 +2,17 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
+interface Task {
+  taskId: string;
+  title: string;
+  description?: string;
+  deadline: string;
+  priority: "high" | "medium" | "low";
+  currentStatus: "pending" | "ongoing" | "completed";
+}
+
 const PendingTasksPage = () => {
-  const [pendingTasks, setPendingTasks] = useState<any[]>([]);
+  const [pendingTasks, setPendingTasks] = useState<Task[]>([]);
 
   useEffect(() => {
     fetchPendingTasks(); // Fetch pending tasks on component mount
@@ -18,14 +27,12 @@ const PendingTasksPage = () => {
         },
         withCredentials: true,
       });
-      const tasks = response.data.data.user.tasks; // Adjust this based on your API response structure
-
+      const tasks: Task[] = response.data.data.user.tasks; // Type the tasks as Task[]
 
       // Filter tasks to get only those that are pending
       const filteredPendingTasks = tasks.filter(
-        (task: any) => task.currentStatus === "pending"
+        (task) => task.currentStatus === "pending"
       );
-
 
       setPendingTasks(filteredPendingTasks); // Update state with pending tasks
     } catch (error) {
@@ -84,17 +91,15 @@ const PendingTasksPage = () => {
                 <p className="text-base text-white mt-2">
                   {task.description || "No details available."}
                 </p>
-                <p className="text-base text-white mt-4">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
+                <p className="text-base text-white mt-4">
+                  Deadline: {new Date(task.deadline).toLocaleDateString()}
+                </p>
 
                 {/* Radio buttons for status */}
                 <div className="mt-4">
                   <p className="text-white text-base mb-2">Status:</p>
                   <div className="flex space-x-4">
-                    {[
-                      "pending",
-                      "ongoing",
-                      "completed",
-                    ].map((status) => (
+                    {["pending", "ongoing", "completed"].map((status) => (
                       <label
                         key={status}
                         className="text-base text-white flex items-center space-x-2"
@@ -107,10 +112,9 @@ const PendingTasksPage = () => {
                           onChange={() => updateTaskStatus(task.taskId, status)}
                           className="form-radio text-yellow-300"
                         />
-                        <span>{
-                          status.charAt(0).toUpperCase() +
-                          status.slice(1)
-                        }</span>
+                        <span>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </span>
                       </label>
                     ))}
                   </div>

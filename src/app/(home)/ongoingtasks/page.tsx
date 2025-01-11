@@ -3,9 +3,20 @@ import Loader from "@/components/Loader";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
+// Define Task Interface
+interface Task {
+  taskId: string;
+  title: string;
+  description: string;
+  deadline: string;
+  priority: "high" | "medium" | "low";
+  currentStatus: "pending" | "ongoing" | "completed";
+  isExpanded?: boolean; // For managing "Read More" state locally
+}
+
 const OngoingTasksPage = () => {
-  const [ongoingTasks, setOngoingTasks] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); // State for loading indicator
+  const [ongoingTasks, setOngoingTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchOngoingTasks(); // Fetch ongoing tasks on component mount
@@ -18,18 +29,18 @@ const OngoingTasksPage = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      const tasks = response.data.data.user.tasks;
+      const tasks: Task[] = response.data.data.user.tasks;
 
       // Filter tasks with currentStatus "ongoing"
       const filteredOngoingTasks = tasks.filter(
-        (task: any) => task.currentStatus === "ongoing"
+        (task) => task.currentStatus === "ongoing"
       );
 
       setOngoingTasks(filteredOngoingTasks);
-      setLoading(false); // Set loading to false when data is fetched
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching ongoing tasks:", error);
-      setLoading(false); // Set loading to false even in case of error
+      setLoading(false);
     }
   };
 
@@ -45,7 +56,6 @@ const OngoingTasksPage = () => {
         }
       );
 
-      // Refresh tasks after status update
       fetchOngoingTasks();
     } catch (error) {
       console.error("Error updating task status:", error);
@@ -81,7 +91,7 @@ const OngoingTasksPage = () => {
         <p className="text-lg mb-6">Manage and track your ongoing tasks efficiently.</p>
 
         {loading ? (
-         <Loader/>
+          <Loader />
         ) : ongoingTasks.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {ongoingTasks.map((task) => (
@@ -103,12 +113,13 @@ const OngoingTasksPage = () => {
                         <span
                           className="text-yellow-300 cursor-pointer hover:underline"
                           onClick={() => {
-                            const updatedTasks = ongoingTasks.map((t) =>
-                              t.taskId === task.taskId
-                                ? { ...t, isExpanded: !t.isExpanded }
-                                : t
+                            setOngoingTasks((prevTasks) =>
+                              prevTasks.map((t) =>
+                                t.taskId === task.taskId
+                                  ? { ...t, isExpanded: !t.isExpanded }
+                                  : t
+                              )
                             );
-                            setOngoingTasks(updatedTasks);
                           }}
                         >
                           {" "}
@@ -150,7 +161,9 @@ const OngoingTasksPage = () => {
         ) : (
           <div className="flex flex-col items-center mt-20 text-center text-gray-200">
             <h2 className="text-2xl font-bold mb-4">No Ongoing Tasks Found</h2>
-            <p className="text-lg">You have no tasks in progress. Start working on tasks to see them here.</p>
+            <p className="text-lg">
+              You have no tasks in progress. Start working on tasks to see them here.
+            </p>
           </div>
         )}
       </div>

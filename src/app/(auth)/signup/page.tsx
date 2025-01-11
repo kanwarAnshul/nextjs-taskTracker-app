@@ -6,32 +6,34 @@ import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 const SignUpPage = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const onSignup = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
     try {
       setIsLoading(true);
       await axios.post(
         "/api/users/signup",
         { username, email, password },
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       );
       toast.success("Successfully signed up!");
       setIsLoading(false);
-      router.push('/login'); // Navigate to login page after success
-    } catch (error: any) {
+      router.push("/login");
+    } catch (err: unknown) {
       setIsLoading(false);
-      toast.error(error.response?.data?.message || error.message || "Signup failed");
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Signup failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 

@@ -4,13 +4,10 @@ import { NextRequest, NextResponse } from 'next/server'
 // Named export for the POST method
 export async function POST(request: NextRequest) {
   try {
-    // Parse the JSON body from the request
     const reqBody = await request.json()
     const { taskId, title, description, deadline, priority } = reqBody
 
-    console.log('Backend response ✅✅', { taskId, title, description, deadline, priority })
 
-    // Update the task in the database
     const task = await Task.findOneAndUpdate(
       {taskId}, // make sure to use a valid query
       { title, description, deadline, priority },
@@ -27,7 +24,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Success response
     return NextResponse.json(
       {
         message: 'Task updated successfully',
@@ -39,7 +35,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error updating task:', error)
 
-    // Error response
     return NextResponse.json(
       {
         message: 'Internal Server Error',

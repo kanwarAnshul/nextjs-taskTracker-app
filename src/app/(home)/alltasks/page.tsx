@@ -34,12 +34,15 @@ const AllTaskPage = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      console.log("the fetched response ✅✅", response.data);
       toast.success("Successfully task fetched");
       setUserTask(response.data.data.user.tasks);
-    } catch (error: any) {
-      console.error("Error fetching tasks:", error.response?.data || error.message);
-      toast.error(error.response?.data?.message || error.message);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || error.message);
+        console.error("Error fetching tasks:", error.response?.data || error.message);
+      } else {
+        toast.error("Unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -77,12 +80,15 @@ const AllTaskPage = () => {
             : task
         )
       );
-      console.log("the frontend user task details>😎😎", userTask);
 
       toast.success("Task updated successfully!");
-    } catch (error: any) {
-      toast.error(error.message || "Error updating task");
-      console.error("Error updating task:", error);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.message || "Error updating task");
+        console.error("Error updating task:", error);
+      } else {
+        toast.error("Unknown error occurred");
+      }
     }
   };
 
@@ -109,14 +115,23 @@ const AllTaskPage = () => {
 
   const handleDialogOpen = (task: Task) => {
     setSelectedTask(task);
-    console.log("the dialog task>>>",task);
+  
+    // Ensure task.deadline is a Date object before calling toISOString
+    const formattedDeadline = new Date(task.deadline);
     
+    // Check if the date is valid
+    if (isNaN(formattedDeadline.getTime())) {
+      console.error("Invalid date format:", task.deadline);
+      return;
+    }
+  
     setTitle(task.title);
     setDescription(task.description);
-    setDeadline(task.deadline.toISOString);
+    setDeadline(formattedDeadline.toISOString().slice(0, 10)); // Format date as YYYY-MM-DD
     setPriority(task.priority);
     setIsDialogOpen(true);
   };
+  
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
@@ -146,9 +161,13 @@ const AllTaskPage = () => {
 
       setUserTask((prevTasks) => prevTasks.filter((task) => task.taskId !== taskId));
       toast.success("Task deleted successfully");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error deleting task");
-      console.error("Error deleting task:", error);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Error deleting task");
+        console.error("Error deleting task:", error);
+      } else {
+        toast.error("Unknown error occurred");
+      }
     }
   };
 
@@ -168,7 +187,6 @@ const AllTaskPage = () => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-900 to-slate-700 text-yellow-300 p-8">
       <div className="max-w-7xl mx-auto">

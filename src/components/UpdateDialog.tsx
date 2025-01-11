@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 
+// Define the Task interface
+interface Task {
+  title: string;
+  description: string;
+  deadline: string; // Or Date, depending on how the deadline is represented
+  priority: "Low" | "Medium" | "High";
+}
+
 interface UpdateDialogProps {
   isOpen: boolean;
-  task: any;
-  onUpdate: (updatedTask: any) => void;
+  task: Task;  // Replace 'any' with the Task interface
+  onUpdate: (updatedTask: Task) => void;  // Replace 'any' with Task
   onClose: () => void;
 }
 
@@ -18,10 +26,10 @@ const UpdateDialog: React.FC<UpdateDialogProps> = ({
   const [deadline, setDeadline] = useState(task.deadline);
   const [priority, setPriority] = useState(task.priority);
 
-  if (!isOpen) return null; 
+  if (!isOpen) return null;
 
   const handleUpdate = () => {
-    const updatedTask = {
+    const updatedTask: Task = {
       ...task,
       title,
       description,
@@ -29,7 +37,7 @@ const UpdateDialog: React.FC<UpdateDialogProps> = ({
       priority,
     };
     onUpdate(updatedTask);
-    onClose(); 
+    onClose();
   };
 
   return (
@@ -63,10 +71,10 @@ const UpdateDialog: React.FC<UpdateDialogProps> = ({
           />
         </div>
         <div className="mb-4">
-          <label className="block font-medium " >Priority</label>
+          <label className="block font-medium">Priority</label>
           <select
             value={priority}
-            onChange={(e) => setPriority(e.target.value)}
+            onChange={(e) => setPriority(e.target.value as "Low" | "Medium" | "High")}
             className="w-full p-2 border rounded bg-slate-700"
           >
             <option value="Low">Low</option>
@@ -82,7 +90,7 @@ const UpdateDialog: React.FC<UpdateDialogProps> = ({
             Cancel
           </button>
           <button
-            onClick={()=>{handleUpdate()}}
+            onClick={handleUpdate}
             className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Update

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Task from '@/models/userTaskModel'; // Ensure this path is correct
 
+interface UpdateTaskFields {
+  currentStatus: string;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { taskId, currentStatus } = await req.json();
+    const { taskId, currentStatus }: { taskId: string, currentStatus: string } = await req.json();
 
     // Validate inputs
     if (!taskId || !currentStatus) {
@@ -16,12 +20,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    const updateFields: any = {
+    const updateFields: UpdateTaskFields = {
       currentStatus,
     };
 
     const statusField = `status.${currentStatus}`;
-    const updateOperation = { $addToSet: { [statusField]: task._id } }; 
+    const updateOperation = { $addToSet: { [statusField]: task._id } };
 
     // Update the task
     await Task.findOneAndUpdate({ taskId }, updateFields, { new: true });

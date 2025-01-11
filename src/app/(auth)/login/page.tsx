@@ -12,7 +12,7 @@ const LoginPage = () => {
 
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     try {
       setIsLoading(true);
       const response = await axios.post(
@@ -23,20 +23,23 @@ const LoginPage = () => {
           withCredentials: true,
         }
       );
-  
+
       if (response.data.success) {
         toast.success(response.data.message || "Login successful!");
         router.push("/"); // Redirect to homepage or dashboard
       } else {
         toast.error(response.data.message || "Login failed!");
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "An error occurred during login.");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "An error occurred during login.");
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
@@ -82,7 +85,7 @@ const LoginPage = () => {
           </button>
         </form>
         <p className="text-center text-slate-400 text-sm mt-4">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <a href="/signup" className="text-yellow-400 hover:underline">
             Sign up
           </a>

@@ -4,8 +4,18 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/Loader"; // Make sure to import the loader component
 
+// Define the structure of a Task
+interface Task {
+  taskId: string;
+  title: string;
+  description: string;
+  currentStatus: string;
+  priority: string;
+  completedDate: string; // Assuming it's a string from the API
+}
+
 const CompletedTasksPage = () => {
-  const [completedTasks, setCompletedTasks] = useState<any[]>([]);
+  const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true); // Track loading state
 
   useEffect(() => {
@@ -19,11 +29,11 @@ const CompletedTasksPage = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      const tasks = response.data.data.user.tasks;
+      const tasks: Task[] = response.data.data.user.tasks;
 
       // Filter tasks with currentStatus "completed"
       const filteredCompletedTasks = tasks.filter(
-        (task: any) => task.currentStatus === "completed"
+        (task) => task.currentStatus === "completed"
       );
 
       setCompletedTasks(filteredCompletedTasks);

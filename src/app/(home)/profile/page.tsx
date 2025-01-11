@@ -6,10 +6,14 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaUserCircle } from "react-icons/fa";
 
+interface UserData {
+  username: string;
+  email: string;
+}
+
 const ProfilePage = () => {
-  const [username, setUsername] = useState<string>();
-  const [email, setEmail] = useState<string>();
-  const [loading, setLoading] = useState<boolean>();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     fetchUserData();
@@ -22,13 +26,24 @@ const ProfilePage = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      setUsername(response.data.data.user.username);
-      setEmail(response.data.data.user.email);
-      toast.success("Successfully fetched user data");
-    } catch (error: any) {
-      toast.error(
-        error.response ? error.response.data.message : error.message
-      );
+      const user = response.data?.data?.user;
+      if (user) {
+        setUserData({
+          username: user.username,
+          email: user.email,
+        });
+        toast.success("Successfully fetched user data");
+      } else {
+        throw new Error("User data is missing in the response.");
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message || "Failed to fetch user data."
+        );
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -46,13 +61,14 @@ const ProfilePage = () => {
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md text-center relative">
         {/* Profile Picture */}
         <div className="w-24 h-24 mx-auto bg-gray-700 rounded-full flex items-center justify-center shadow-md mb-4 relative">
-          {username ? (
+          {userData?.username ? (
             <Image
               src="https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Profile"
               height={40}
               width={40}
               className="rounded-full w-full h-full object-cover"
+              onError={(e) => (e.currentTarget.style.display = "none")} // Fallback if image fails to load
             />
           ) : (
             <FaUserCircle className="text-gray-500 text-5xl" />
@@ -68,13 +84,13 @@ const ProfilePage = () => {
           <div className="text-xl font-semibold text-yellow-400 mb-4">
             Username:
             <span className="block text-white text-lg mt-1">
-              {username || "Loading..."}
+              {userData?.username || "Loading..."}
             </span>
           </div>
           <div className="text-xl font-semibold text-yellow-400 mb-4">
             Email:
             <span className="block text-white text-lg mt-1">
-              {email || "Loading..."}
+              {userData?.email || "Loading..."}
             </span>
           </div>
         </div>
