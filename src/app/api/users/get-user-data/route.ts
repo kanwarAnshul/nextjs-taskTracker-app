@@ -19,7 +19,13 @@ export async function GET(request: NextRequest) {
       message: 'User found',
       data: user,
     })
-  } catch (error) {
-    return NextResponse.json({ error: (error as Error).message }, { status: 400 })
+  } catch (error: unknown) {
+    // Handle error by checking if it is an instance of Error
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    } else {
+      // Handle unexpected errors
+      return NextResponse.json({ error: 'Unknown error occurred' }, { status: 500 })
+    }
   }
 }

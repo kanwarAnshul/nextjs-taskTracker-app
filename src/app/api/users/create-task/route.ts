@@ -45,7 +45,13 @@ export async function POST(request: NextRequest) {
 
     // Respond with the created task
     return NextResponse.json(savedTask, { status: 201 })
-  } catch (error) {
-    return NextResponse.json({ error: `Internal Server Error ${error.message}` }, { status: 500 })
+  } catch (error: unknown) {
+    // Handle the error and assert it as an instance of Error
+    if (error instanceof Error) {
+      return NextResponse.json({ error: `Internal Server Error: ${error.message}` }, { status: 500 })
+    } else {
+      // If the error is not an instance of Error, handle it generically
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    }
   }
 }

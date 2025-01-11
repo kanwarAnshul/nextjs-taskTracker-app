@@ -29,8 +29,13 @@ export async function GET(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error('Error retrieving user data:', error);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    // Handle error by checking if it is an instance of Error
+    if (error instanceof Error) {
+      return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    } else {
+      // Handle unexpected errors
+      return NextResponse.json({ success: false, message: 'Unknown error occurred' }, { status: 500 });
+    }
   }
 }
