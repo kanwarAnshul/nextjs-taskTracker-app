@@ -15,6 +15,11 @@ export const getDataFromToken = async (request: NextRequest) => {
     // Return decodedToken.id directly, no need to return an object
     return decodedToken.id
   } catch (error) {
-    throw new Error(error.message)
+    // Assert that the error is an instance of Error before accessing its message
+    if (error instanceof Error) {
+      throw new Error(error.message)
+    } else {
+      throw new Error('An unknown error occurred')
+    }
   }
 }
