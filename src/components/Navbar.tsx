@@ -19,9 +19,14 @@ const Navbar = () => {
         router.push("/");
       });
     } catch (error) {
-      toast.error(error.message);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
+  
 
   const handleMobileMenuToggle = () => setIsMobileMenuOpen((prev) => !prev);
 
