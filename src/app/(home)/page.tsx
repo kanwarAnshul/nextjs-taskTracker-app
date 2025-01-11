@@ -6,7 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import Loader from "@/components/Loader";
-
+import { AxiosError } from "axios";
 const HomePage = () => {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
@@ -71,8 +71,12 @@ const HomePage = () => {
         setDeadline("");
         setPriority("Low");
       }
-    } catch (error) {
-      console.error("Error adding task:", error.response?.data || error.message);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        console.error("Error adding task:", error.response?.data || error.message);
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
       toast.error("Failed to add the task. Please try again!");
     } finally {
       setLoading(false); // Stop loading after the request is complete
